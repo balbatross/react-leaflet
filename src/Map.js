@@ -54,6 +54,7 @@ type Props = {
   crs?: CRS,
   center?: LatLng,
   zoom?: number,
+  rotate?: number,
   minZoom?: number,
   maxZoom?: number,
   maxBounds?: LatLngBounds,
@@ -122,6 +123,9 @@ export default class Map extends MapEvented<LeafletElement, Props> {
         options.zoom = viewport.zoom
       }
     }
+    if(typeof props.rotate === 'number'){
+      options.rotate = props.rotate
+    }
     return new LeafletMap(this.container, options)
   }
 
@@ -144,6 +148,7 @@ export default class Map extends MapEvented<LeafletElement, Props> {
       touchZoom,
       useFlyTo,
       viewport,
+      rotate,
       zoom,
     } = toProps
 
@@ -169,6 +174,11 @@ export default class Map extends MapEvented<LeafletElement, Props> {
       } else {
         this.leafletElement.setZoom(zoom)
       }
+    }
+
+    if(typeof rotate === 'number' && rotate !== fromProps.rotate){
+      console.log("Bearing", rotate);
+      this.leafletElement.setBearing(toProps.rotate)
     }
 
     if (maxBounds && this.shouldUpdateBounds(maxBounds, fromProps.maxBounds)) {
@@ -272,9 +282,15 @@ export default class Map extends MapEvented<LeafletElement, Props> {
     this.leafletElement.on('move', this.onViewportChange)
     this.leafletElement.on('moveend', this.onViewportChanged)
 
+
     if (props.bounds != null) {
       this.leafletElement.fitBounds(props.bounds, props.boundsOptions)
     }
+
+    if(props.rotate != null){
+      this.leafletElement.setBearing(props.rotate)
+    }
+
 
     if (this.props.whenReady) {
       this.leafletElement.whenReady(this.props.whenReady)
